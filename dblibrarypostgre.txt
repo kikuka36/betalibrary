@@ -1,0 +1,175 @@
+-- Table: public.authors
+
+-- DROP TABLE IF EXISTS public.authors;
+
+CREATE TABLE IF NOT EXISTS public.authors
+(
+    author_id integer NOT NULL DEFAULT nextval('authors_author_id_seq'::regclass),
+    name text COLLATE pg_catalog."default" NOT NULL,
+    surname text COLLATE pg_catalog."default" NOT NULL,
+    birthdate date,
+    CONSTRAINT authors_pkey PRIMARY KEY (author_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.authors
+    OWNER to postgres;
+
+-- Table: public.book_copies
+
+-- DROP TABLE IF EXISTS public.book_copies;
+
+CREATE TABLE IF NOT EXISTS public.book_copies
+(
+    copy_id integer NOT NULL DEFAULT nextval('book_copies_copy_id_seq'::regclass),
+    book_id integer NOT NULL,
+    location_id integer NOT NULL,
+    status_id integer NOT NULL,
+    CONSTRAINT book_copies_pkey PRIMARY KEY (copy_id),
+    CONSTRAINT book_copies_book_id_fkey FOREIGN KEY (book_id)
+        REFERENCES public.books (book_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
+    CONSTRAINT book_copies_location_id_fkey FOREIGN KEY (location_id)
+        REFERENCES public.locations (location_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT,
+    CONSTRAINT book_copies_status_id_fkey FOREIGN KEY (status_id)
+        REFERENCES public.statuses (status_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.book_copies
+    OWNER to postgres;
+
+-- Table: public.books
+
+-- DROP TABLE IF EXISTS public.books;
+
+CREATE TABLE IF NOT EXISTS public.books
+(
+    book_id integer NOT NULL DEFAULT nextval('books_book_id_seq'::regclass),
+    title text COLLATE pg_catalog."default" NOT NULL,
+    author_id integer NOT NULL,
+    year integer,
+    genre text COLLATE pg_catalog."default",
+    CONSTRAINT books_pkey PRIMARY KEY (book_id),
+    CONSTRAINT books_author_id_fkey FOREIGN KEY (author_id)
+        REFERENCES public.authors (author_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.books
+    OWNER to postgres;
+
+
+-- Table: public.loans
+
+-- DROP TABLE IF EXISTS public.loans;
+
+CREATE TABLE IF NOT EXISTS public.loans
+(
+    loan_id integer NOT NULL DEFAULT nextval('loans_loan_id_seq'::regclass),
+    copy_id integer NOT NULL,
+    reader_id integer NOT NULL,
+    loan_date date NOT NULL,
+    due_date date NOT NULL,
+    return_date date,
+    status_id integer NOT NULL,
+    CONSTRAINT loans_pkey PRIMARY KEY (loan_id),
+    CONSTRAINT loans_copy_id_fkey FOREIGN KEY (copy_id)
+        REFERENCES public.book_copies (copy_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT,
+    CONSTRAINT loans_reader_id_fkey FOREIGN KEY (reader_id)
+        REFERENCES public.readers (reader_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT,
+    CONSTRAINT loans_status_id_fkey FOREIGN KEY (status_id)
+        REFERENCES public.statuses (status_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.loans
+    OWNER to postgres;
+
+-- Table: public.locations
+
+-- DROP TABLE IF EXISTS public.locations;
+
+CREATE TABLE IF NOT EXISTS public.locations
+(
+    location_id integer NOT NULL DEFAULT nextval('locations_location_id_seq'::regclass),
+    row_number text COLLATE pg_catalog."default" NOT NULL,
+    shelf_number text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT locations_pkey PRIMARY KEY (location_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.locations
+    OWNER to postgres;
+
+-- Table: public.readers
+
+-- DROP TABLE IF EXISTS public.readers;
+
+CREATE TABLE IF NOT EXISTS public.readers
+(
+    reader_id integer NOT NULL DEFAULT nextval('readers_reader_id_seq'::regclass),
+    name text COLLATE pg_catalog."default" NOT NULL,
+    surname text COLLATE pg_catalog."default" NOT NULL,
+    birthdate date,
+    phone text COLLATE pg_catalog."default",
+    CONSTRAINT readers_pkey PRIMARY KEY (reader_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.readers
+    OWNER to postgres;
+
+-- Table: public.statuses
+
+-- DROP TABLE IF EXISTS public.statuses;
+
+CREATE TABLE IF NOT EXISTS public.statuses
+(
+    status_id integer NOT NULL DEFAULT nextval('statuses_status_id_seq'::regclass),
+    category text COLLATE pg_catalog."default" NOT NULL,
+    status text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT statuses_pkey PRIMARY KEY (status_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.statuses
+    OWNER to postgres;
+
+-- Table: public.users
+
+-- DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    user_id integer NOT NULL DEFAULT nextval('users_user_id_seq'::regclass),
+    username text COLLATE pg_catalog."default" NOT NULL,
+    password_hash text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT users_pkey PRIMARY KEY (user_id),
+    CONSTRAINT users_username_key UNIQUE (username)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to postgres;
